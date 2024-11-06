@@ -135,15 +135,15 @@ vec3 approx_normal(vec3 p) {
 void main() {
     vec2 uv = (f_uv * 2.0 - 1.0) * u_resolution / u_resolution.y;
 
-    vec3 ro = vec3(3.0, 1.0, -4.0);
+    vec3 ro = vec3(0.0, 0.0, -4.0);
     vec3 rd = normalize(vec3(uv, 1.0));
 
-    vec3 target = vec3(0.0); 
-    vec3 forward = normalize(target - ro);  
+    vec3 origin = vec3(0.0); 
+    vec3 forward = normalize(ro - origin);  
     
-    vec3 rotatedForward = rotationY(u_mouseRot.y) * rotationZ(u_mouseRot.x) * forward;
+    vec3 rotatedForward = rotationZ(-u_mouseRot.x) * forward;
     vec3 right = cross(vec3(0.0, 1.0, 0.0), rotatedForward);
-    vec3 up = cross(rotatedForward, right);
+    vec3 up = cross(right, rotatedForward);
 
     vec3 a_col = vec3(145.0 / 255.0, 155.0 / 255.0, 250.0 / 255.0);
     vec3 col = a_col;
@@ -154,9 +154,9 @@ void main() {
     vec2 mousePos = u_mouse.xy/u_resolution.xy;
 
     rd *= rotationX(u_mouseRot.y) * rotationZ(u_mouseRot.x);
-    ro = vec3(mousePos.x, mousePos.y, -6.0);
+    ro += -mousePos.x * right;
+    ro += -mousePos.y * up;
 
-    // rd = normalize(rotatedForward + uv.x * right + uv.y * up);
     float t = ray_march(ro, rd, diffColor);
     if (t <= MAX_DIST) {
         vec3 p = ro + rd * t;
